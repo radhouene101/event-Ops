@@ -1,14 +1,12 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:11-jre-slim
-
-# Set the working directory in the container
+#Build stage
+FROM maven:3.8.5-openjdk-17-slim AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy the packaged JAR file into the container
-COPY target/event-ops-*.jar app.jar
-
-# Expose the application's port (adjust if necessary)
+#Run stage
+FROM openjdk:17-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Run the JAR file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "app.jar"]
