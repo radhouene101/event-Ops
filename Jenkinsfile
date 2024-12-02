@@ -2,16 +2,12 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3' // Adjust to your Maven installation name in Jenkins
-        jdk 'JDK11'     // Adjust to the JDK version required by your project
+        maven 'Maven 3.6.3' // Replace with your Maven installation name
+        jdk 'Java 11'       // Replace with your JDK installation name
     }
 
     environment {
-        // Since we're using Docker Hub, we can leave DOCKER_REGISTRY empty
-        DOCKER_REGISTRY = ''
-        DOCKERHUB_CREDENTIALS_ID = 'docker-hub-credentials' // Update this to match your Jenkins credentials ID
-        APP_NAME = 'devops-validation' // Your Docker Hub repository name
-        DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
+        APP_NAME = 'event-ops' // Name of your application
     }
 
     stages {
@@ -48,20 +44,15 @@ pipeline {
             steps {
                 script {
                     withCredentials([
-                        usernamePassword(
-                            credentialsId: "${DOCKERHUB_CREDENTIALS_ID}",
-                            usernameVariable: 'DOCKER_USER',
-                            passwordVariable: 'DOCKER_PASS'
-                        )
+                        string(credentialsId: 'docker-registry-url', variable: 'DOCKER_REGISTRY'),
+                        usernamePassword(credentialsId: 'docker-registry-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
                     ]) {
-                        echo "Building Docker image: ${DOCKER_IMAGE}"
-                        sh "docker build -t ${DOCKER_IMAGE} ."
-                        echo "Logging into Docker Hub..."
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                        echo "Pushing Docker image: ${DOCKER_IMAGE}"
-                        sh "docker push ${DOCKER_IMAGE}"
-                        echo "Logging out from Docker Hub..."
-                        sh "docker logout"
+                        def imageName = "${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}"
+                        echo "Building Docker image: ${imageName}"
+                        sh "docker build -t ${imageName} ."
+                        echo "Pushing Docker image: ${imageName}"
+                        sh "echo $DOCKER_PASS | docker login ${DOCKER_REGISTRY} -u $DOCKER_USER --password-stdin"
+                        sh "docker push ${imageName}"
                     }
                 }
             }
