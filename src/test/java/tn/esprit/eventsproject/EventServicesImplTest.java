@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import tn.esprit.eventsproject.entities.*;
 import tn.esprit.eventsproject.repositories.*;
-import tn.esprit.eventsproject.services.IEventServices;
+import tn.esprit.eventsproject.services.EventServicesImpl;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
    private LogisticsRepository logisticsRepository;
 
    @InjectMocks
-   private IEventServices eventServices;
+   private EventServicesImpl eventServices;
 
    @BeforeEach
    public void setUp() {

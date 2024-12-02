@@ -12,7 +12,7 @@ import tn.esprit.eventsproject.controllers.EventRestController;
 import tn.esprit.eventsproject.entities.Event;
 import tn.esprit.eventsproject.entities.Logistics;
 import tn.esprit.eventsproject.entities.Participant;
-import tn.esprit.eventsproject.services.IEventServices;
+import tn.esprit.eventsproject.services.EventServicesImpl;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     private MockMvc mockMvc;
 
     @MockBean
-    private IEventServices eventServices;
+    private EventServicesImpl eventServices;
 
     @Autowired
     private ObjectMapper objectMapper;
