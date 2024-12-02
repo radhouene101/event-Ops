@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         maven 'M2_HOME' // Adjust to your Maven installation name in Jenkins
-        jdk 'JDK17' // Adjust to the JDK version required by your project
+        jdk 'JAVA_HOME' // Adjust to the JDK version required by your project
     }
 
     environment {
