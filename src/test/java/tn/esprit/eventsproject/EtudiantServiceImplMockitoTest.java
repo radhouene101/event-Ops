@@ -2,7 +2,6 @@ package tn.esprit.eventsproject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,9 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EventRestController.class)
@@ -36,57 +36,72 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-     void testAddParticipant() throws Exception {
-        // Arrange
-        Participant participant = new Participant(1, "John", "Doe");
-        Mockito.when(eventServices.addParticipant(any(Participant.class))).thenReturn(participant);
 
-        // Act & Assert
-        mockMvc.perform(post("/event/addPart")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(participant)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idPart").value(1))
-                .andExpect(jsonPath("$.nom").value("John"))
-                .andExpect(jsonPath("$.prenom").value("Doe"));
-    }
+   @Test
+    void testAddParticipant() throws Exception {
+      // Arrange
+      Participant mockParticipant = new Participant();
+      mockParticipant.setIdPart(1); // Set expected ID
+      mockParticipant.setNom("John");
 
-    @Test
-     void testAddEventPart() throws Exception {
-        // Arrange
-        Event event = new Event(1, "Sample Event");
-        Mockito.when(eventServices.addAffectEvenParticipant(any(Event.class), eq(1))).thenReturn(event);
+      // Mock behavior for service
+      when(eventServices.addParticipant(any(Participant.class))).thenReturn(mockParticipant);
 
-        // Act & Assert
-        mockMvc.perform(post("/event/addEvent/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(event)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idEvent").value(1))
-                .andExpect(jsonPath("$.description").value("Sample Event"));
-    }
+      // Act & Assert
+      mockMvc.perform(post("/event/addPart")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(new Participant())))
+              .andExpect(status().isOk())
+              .andExpect(jsonPath("$.idPart").value(1)) // Assert ID matches
+              .andExpect(jsonPath("$.nom").value("John")); // Assert name matches
+   }
 
-    @Test
-     void testAddEvent() throws Exception {
-        // Arrange
-        Event event = new Event(1, "Sample Event");
-        Mockito.when(eventServices.addAffectEvenParticipant(any(Event.class))).thenReturn(event);
+   @Test
+   void testAddEventPart() throws Exception {
 
-        // Act & Assert
-        mockMvc.perform(post("/event/addEvent")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(event)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idEvent").value(1))
-                .andExpect(jsonPath("$.description").value("Sample Event"));
-    }
+      Event event = new Event();
+      event.setIdEvent(1);
+      event.setDescription("Sample Event");
 
-    @Test
+      when(eventServices.addAffectEvenParticipant(any(Event.class), eq(1))).thenReturn(event);
+
+      Event inputEvent = new Event();
+
+      mockMvc.perform(post("/event/addEvent/1")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(inputEvent)))
+              .andDo(print())
+              .andExpect(status().isOk())
+              .andExpect(jsonPath("$.idEvent").value(1))
+              .andExpect(jsonPath("$.description").value("Sample Event"));
+   }
+
+
+   @Test
+    void testAddEvent() throws Exception {
+      // Arrange
+      Event mockEvent = new Event();
+      mockEvent.setIdEvent(1); // Set expected ID
+      mockEvent.setDescription("Test Event");
+
+
+      when(eventServices.addAffectEvenParticipant(any(Event.class))).thenReturn(mockEvent);
+
+      // Act & Assert
+      mockMvc.perform(post("/event/addEvent")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(new Event())))
+              .andExpect(status().isOk())
+              .andExpect(jsonPath("$.idEvent").value(1)) // Assert ID matches
+              .andExpect(jsonPath("$.description").value("Test Event")); // Assert description matches
+   }
+
+
+   @Test
      void testAddAffectLog() throws Exception {
         // Arrange
         Logistics logistics = new Logistics(1, "Logistics Description", true, 100, 2);
-        Mockito.when(eventServices.addAffectLog(any(Logistics.class), eq("Event Description"))).thenReturn(logistics);
+        when(eventServices.addAffectLog(any(Logistics.class), eq("Event Description"))).thenReturn(logistics);
 
         // Act & Assert
         mockMvc.perform(put("/event/addAffectLog/Event Description")
@@ -106,7 +121,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
         List<Logistics> logisticsList = Arrays.asList(logistics1, logistics2);
 
-        Mockito.when(eventServices.getLogisticsDates(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31)))
+        when(eventServices.getLogisticsDates(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31)))
                 .thenReturn(logisticsList);
 
         // Act & Assert

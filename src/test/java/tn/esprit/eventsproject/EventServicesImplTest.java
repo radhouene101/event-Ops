@@ -29,7 +29,8 @@ import static org.mockito.Mockito.*;
 
    @BeforeEach
    public void setUp() {
-      MockitoAnnotations.openMocks(this);
+     MockitoAnnotations.openMocks(this);
+     eventServices = new EventServicesImpl(eventRepository, participantRepository, logisticsRepository);
    }
 
    // Test for addParticipant
