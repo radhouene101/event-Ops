@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        maven 'M2_HOME' // Adjust to your Maven installation name in Jenkins
-        jdk 'JAVA_HOME' // Adjust to the JDK version required by your project
+        maven 'M2_HOME' // Ensure these match the names in Jenkins Global Tool Configuration
+        jdk 'JAVA_HOME'
     }
 
     environment {
-        DOCKER_REGISTRY = '' // Leave empty or set to 'docker.io' for Docker Hub
+        DOCKER_REGISTRY = '' // For Docker Hub
         APP_NAME = 'devops-validation' // Your Docker Hub repository name
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
     }
@@ -29,6 +29,21 @@ pipeline {
             steps {
                 echo 'Running tests...'
                 sh 'mvn test'
+                junit 'target/surefire-reports/*.xml' // Publish test results
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('MySonarQube') { // Replace 'MySonarQube' with your SonarQube server name in Jenkins
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
         stage('Package') {
