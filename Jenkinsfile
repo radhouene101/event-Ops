@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3' // Adjust to your Maven installation name in Jenkins
+        maven 'M2_HOME' // Adjust to your Maven installation name in Jenkins
         jdk 'JDK17' // Adjust to the JDK version required by your project
     }
 
