@@ -2,13 +2,14 @@ pipeline {
     agent any
 
     tools {
-            maven 'M2_HOME' // Adjust to your Maven installation name in Jenkins
-            jdk 'JAVA_HOME' // Adjust to the JDK version required by your project
-        }
+        maven 'M2_HOME' // Adjust to your Maven installation name in Jenkins
+        jdk 'JAVA_HOME' // Adjust to the JDK version required by your project
+    }
 
     environment {
-        DOCKER_REGISTRY = 'https://hub.docker.com/repository/docker/radhouene101/devops-validation'
-        APP_NAME = 'event-ops' // Name of your application
+        DOCKER_REGISTRY = '' // Leave empty or set to 'docker.io' for Docker Hub
+        APP_NAME = 'devops-validation' // Your Docker Hub repository name
+        DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -45,15 +46,16 @@ pipeline {
             steps {
                 script {
                     withCredentials([
-                        string(credentialsId: 'docker-registry-url', variable: 'DOCKER_REGISTRY'),
                         usernamePassword(credentialsId: 'docker-registry-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
                     ]) {
-                        def imageName = "${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}"
-                        echo "Building Docker image: ${imageName}"
-                        sh "docker build -t ${imageName} ."
-                        echo "Pushing Docker image: ${imageName}"
-                        sh "echo $DOCKER_PASS | docker login ${DOCKER_REGISTRY} -u $DOCKER_USER --password-stdin"
-                        sh "docker push ${imageName}"
+                        echo "Building Docker image: ${DOCKER_IMAGE}"
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                        echo "Logging into Docker Hub..."
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                        echo "Pushing Docker image: ${DOCKER_IMAGE}"
+                        sh "docker push ${DOCKER_IMAGE}"
+                        echo "Logging out from Docker Hub..."
+                        sh "docker logout"
                     }
                 }
             }
