@@ -13,14 +13,12 @@ import tn.esprit.eventsproject.repositories.LogisticsRepository;
 import tn.esprit.eventsproject.repositories.ParticipantRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EventServicesImpl implements IEventServices{
+public class EventServicesImpl implements IEventServices {
 
     private final EventRepository eventRepository;
     private final ParticipantRepository participantRepository;
@@ -28,93 +26,95 @@ public class EventServicesImpl implements IEventServices{
 
     @Override
     public Participant addParticipant(Participant participant) {
+        Objects.requireNonNull(participant, "Participant cannot be null");
         return participantRepository.save(participant);
     }
 
     @Override
     public Event addAffectEvenParticipant(Event event, int idParticipant) {
-        Participant participant = participantRepository.findById(idParticipant).orElse(null);
-        if(participant.getEvents() == null){
-            Set<Event> events = new HashSet<>();
-            events.add(event);
-            participant.setEvents(events);
-        }else {
-            participant.getEvents().add(event);
-        }
+        Objects.requireNonNull(event, "Event cannot be null");
+
+        Participant participant = participantRepository.findById(idParticipant)
+                .orElseThrow(() -> new IllegalArgumentException("Participant not found with ID: " + idParticipant));
+
+        participant.setEvents(Optional.ofNullable(participant.getEvents()).orElse(new HashSet<>()));
+        participant.getEvents().add(event);
+
         return eventRepository.save(event);
     }
 
     @Override
     public Event addAffectEvenParticipant(Event event) {
-        Set<Participant> participants = event.getParticipants();
-        for(Participant aParticipant:participants){
-            Participant participant = participantRepository.findById(aParticipant.getIdPart()).orElse(null);
-            if(participant.getEvents() == null){
-                Set<Event> events = new HashSet<>();
-                events.add(event);
-                participant.setEvents(events);
-            }else {
-                participant.getEvents().add(event);
-            }
-        }
+        Objects.requireNonNull(event, "Event cannot be null");
+
+        Set<Participant> participants = Optional.ofNullable(event.getParticipants())
+                .orElseThrow(() -> new IllegalArgumentException("Event must have participants"));
+
+        participants.forEach(participant -> {
+            Participant existingParticipant = participantRepository.findById(participant.getIdPart())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Participant not found with ID: " + participant.getIdPart()));
+
+            existingParticipant.setEvents(Optional.ofNullable(existingParticipant.getEvents()).orElse(new HashSet<>()));
+            existingParticipant.getEvents().add(event);
+        });
+
         return eventRepository.save(event);
     }
 
     @Override
     public Logistics addAffectLog(Logistics logistics, String descriptionEvent) {
-      Event event = eventRepository.findByDescription(descriptionEvent);
-      if(event.getLogistics() == null){
-          Set<Logistics> logisticsSet = new HashSet<>();
-          logisticsSet.add(logistics);
-          event.setLogistics(logisticsSet);
-          eventRepository.save(event);
-      }
-      else{
-          event.getLogistics().add(logistics);
-      }
+        Objects.requireNonNull(logistics, "Logistics cannot be null");
+        Objects.requireNonNull(descriptionEvent, "Event description cannot be null");
+
+        Event event = Optional.ofNullable(eventRepository.findByDescription(descriptionEvent))
+                .orElseThrow(() -> new IllegalArgumentException("Event not found with description: " + descriptionEvent));
+
+        Set<Logistics> logisticsSet = Optional.ofNullable(event.getLogistics()).orElse(new HashSet<>());
+        logisticsSet.add(logistics);
+        event.setLogistics(logisticsSet);
+        eventRepository.save(event);
+
         return logisticsRepository.save(logistics);
     }
 
     @Override
-    public List<Logistics> getLogisticsDates(LocalDate date_debut, LocalDate date_fin) {
-        List<Event> events = eventRepository.findByDateDebutBetween(date_debut, date_fin);
+    public List<Logistics> getLogisticsDates(LocalDate dateDebut, LocalDate dateFin) {
+        Objects.requireNonNull(dateDebut, "Start date cannot be null");
+        Objects.requireNonNull(dateFin, "End date cannot be null");
+
+        List<Event> events = eventRepository.findByDateDebutBetween(dateDebut, dateFin);
 
         List<Logistics> logisticsList = new ArrayList<>();
-        for (Event event:events){
-            if(event.getLogistics().isEmpty()){
+        events.forEach(event -> {
+            Optional.ofNullable(event.getLogistics()).ifPresent(logisticsSet ->
+                    logisticsSet.stream()
+                            .filter(Logistics::isReserve)
+                            .forEach(logisticsList::add)
+            );
+        });
 
-                return null;
-            }
-
-            else {
-                Set<Logistics> logisticsSet = event.getLogistics();
-                for (Logistics logistics:logisticsSet){
-                    if(logistics.isReserve())
-                        logisticsList.add(logistics);
-                }
-            }
-        }
         return logisticsList;
     }
 
-    @Scheduled(cron = "*/60 * * * * *")
+    @Scheduled(cron = "0 0/1 * * * ?")
     @Override
     public void calculCout() {
-        List<Event> events = eventRepository.findByParticipants_NomAndParticipants_PrenomAndParticipants_Tache("Tounsi","Ahmed", Tache.ORGANISATEUR);
-    // eventRepository.findAll();
-        float somme = 0f;
-        for(Event event:events){
-            log.info(event.getDescription());
-            Set<Logistics> logisticsSet = event.getLogistics();
-            for (Logistics logistics:logisticsSet){
-                if(logistics.isReserve())
-                    somme+=logistics.getPrixUnit()*logistics.getQuantite();
-            }
-            event.setCout(somme);
+        List<Event> events = eventRepository.findByParticipants_NomAndParticipants_PrenomAndParticipants_Tache(
+                "Tounsi", "Ahmed", Tache.ORGANISATEUR);
+
+        events.forEach(event -> {
+            log.info("Calculating cost for event: {}", event.getDescription());
+            float totalCost = Optional.ofNullable(event.getLogistics())
+                    .orElse(Collections.emptySet())
+                    .stream()
+                    .filter(Logistics::isReserve)
+                    .map(logistics -> logistics.getPrixUnit() * logistics.getQuantite())
+                    .reduce(0f, Float::sum);
+
+            event.setCout(totalCost);
             eventRepository.save(event);
-            log.info("Cout de l'Event "+event.getDescription()+" est "+ somme);
-
-        }
+            log.info("Event '{}' total cost: {}", event.getDescription(), totalCost);
+        });
     }
-
 }

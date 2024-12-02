@@ -1,6 +1,7 @@
 package tn.esprit.eventsproject.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.eventsproject.entities.Event;
 import tn.esprit.eventsproject.entities.Logistics;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequestMapping("event")
 @RestController
 public class EventRestController {
+    @Autowired
     private final IEventServices eventServices;
 
     @PostMapping("/addPart")
