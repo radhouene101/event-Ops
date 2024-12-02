@@ -7,6 +7,7 @@ pipeline {
         }
 
     environment {
+        DOCKER_REGISTRY = 'https://hub.docker.com/repository/docker/radhouene101/devops-validation'
         APP_NAME = 'event-ops' // Name of your application
     }
 
