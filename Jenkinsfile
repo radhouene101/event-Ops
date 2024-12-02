@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3.6.3' // Replace with your Maven installation name
-        jdk 'Java 11'       // Replace with your JDK installation name
-    }
+            maven 'M2_HOME' // Adjust to your Maven installation name in Jenkins
+            jdk 'JAVA_HOME' // Adjust to the JDK version required by your project
+        }
 
     environment {
         APP_NAME = 'event-ops' // Name of your application
