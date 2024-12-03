@@ -11,7 +11,7 @@ pipeline {
         APP_NAME = 'devops-validation' // Your Docker Hub repository name
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
         NEXUS_PROTOCOL = "http"
-        NEXUS_URL = "192.168.30.186:8088/nexus"
+        NEXUS_URL = "192.168.30.186:8088/repository"
         NEXUS_CREDENTIALS = 'nexus'
     }
 
