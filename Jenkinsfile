@@ -63,7 +63,7 @@ pipeline {
                 script {
                     nexusArtifactUploader artifacts: [[artifactId: 'eventsProject',
                                                       classifier: '',
-                                                      file: 'target/eventsProject-1.0.0.jar',
+                                                      file: 'target/eventsProject-1.0.0-SNAPSHOT.jar',
                                                       type: 'jar']],
                                           credentialsId: "${NEXUS_CREDENTIALS}",
                                           groupId: 'tn.esprit', // Replace with your group ID
