@@ -57,7 +57,7 @@ pipeline {
         stage('Upload to Nexus') {
             steps {
                 script {
-                    nexusArtifactUploader artifacts: [[artifactId: 'devops-validation',
+                    nexusArtifactUploader artifacts: [[artifactId: 'eventsProject',
                                                       classifier: '',
                                                       file: 'target/eventsProject-1.0.0-SNAPSHOT.jar',
                                                       type: 'jar']],
