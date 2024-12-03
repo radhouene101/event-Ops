@@ -35,7 +35,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube1') { // Replace 'MySonarQube' with your SonarQube server name in Jenkins
-                    sh 'mvn sonar:sonar'
+                    waitForQualityGate()
                 }
             }
         }
