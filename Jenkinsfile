@@ -10,6 +10,8 @@ pipeline {
         DOCKER_REGISTRY = '' // For Docker Hub
         APP_NAME = 'devops-validation' // Your Docker Hub repository name
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
+        NEXUS_URL = 'http://192.168.30.186:8088/repository/maven-releases/' // Replace with your Nexus URL
+        NEXUS_CREDENTIALS = 'nexus' // ID of Nexus credentials in Jenkins
     }
 
     stages {
@@ -35,7 +37,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube1') { // Replace 'MySonarQube' with your SonarQube server name in Jenkins
-                    sh 'mvn sonar:sonar'
+                    sh 'mvn sonar:sonar -X'
                 }
             }
         }
@@ -50,6 +52,21 @@ pipeline {
             steps {
                 echo 'Packaging the application...'
                 sh 'mvn package'
+            }
+        }
+        stage('Upload to Nexus') {
+            steps {
+                script {
+                    nexusArtifactUploader artifacts: [[artifactId: 'devops-validation',
+                                                      classifier: '',
+                                                      file: 'target/devops-validation-1.0.jar', // Adjust the filename to your artifact
+                                                      type: 'jar']],
+                                          credentialsId: "${NEXUS_CREDENTIALS}",
+                                          groupId: 'com.example', // Replace with your group ID
+                                          nexusUrl: "${NEXUS_URL}",
+                                          repository: 'maven-releases', // Replace with your Nexus repository name
+                                          version: '1.0'
+                }
             }
         }
         stage('Build and Push Docker Image') {
