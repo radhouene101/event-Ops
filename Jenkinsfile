@@ -7,8 +7,8 @@ pipeline {
     }
 
     environment {
-        DOCKER_REGISTRY = '' // For Docker Hub
-        APP_NAME = 'devops-validation' // Your Docker Hub repository name
+        DOCKER_REGISTRY = '' // Docker Hub Registry
+        APP_NAME = 'devops-validation' // Docker Image Name
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
         NEXUS_VERSION = "NEXUS3"
         NEXUS_URL = "http://192.168.30.186:8088"
@@ -22,28 +22,30 @@ pipeline {
                 git url: 'https://github.com/radhouene101/event-Ops.git', branch: 'main'
             }
         }
+
         stage('Build') {
             steps {
-                echo "NEXUS_URL is: ${NEXUS_URL}"
-                echo "Full URL: ${NEXUS_URL}/repository/maven-releases/tn/esprit/eventsProject/1.0/eventsProject-1.0.jar"
                 echo 'Building the project with Maven...'
                 sh 'mvn clean package -DskipTests'
             }
         }
+
         stage('Test') {
             steps {
                 echo 'Running tests...'
                 sh 'mvn test'
-                junit 'target/surefire-reports/*.xml' // Publish test results
+                junit 'target/surefire-reports/*.xml'
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube1') { // Replace 'MySonarQube' with your SonarQube server name in Jenkins
+                withSonarQubeEnv('SonarQube1') {
                     sh 'mvn sonar:sonar -X'
                 }
             }
         }
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
@@ -51,28 +53,25 @@ pipeline {
                 }
             }
         }
-        stage('Package') {
-            steps {
-                echo 'Packaging the application...'
-                sh 'mvn package'
-            }
-        }
+
         stage('Upload to Nexus') {
             steps {
                 script {
-                    nexusArtifactUploader artifacts: [[artifactId: 'eventsProject',
-                                                      classifier: '',
-                                                      file: 'target/eventsProject-1.0.0-SNAPSHOT.jar',
-                                                      type: 'jar']],
-                                          credentialsId: NEXUS_CREDENTIALS,
-                                          groupId: 'tn.esprit',
-                                          nexusUrl: NEXUS_URL,
-                                          repository: 'maven-snapshots', // Replace with your Nexus repository name
-                                          version: '1.0.0-SNAPSHOT',
-                                          nexusVersion: NEXUS_VERSION
+                    nexusArtifactUploader(
+                        nexusVersion: NEXUS_VERSION,
+                        protocol: 'http',
+                        nexusUrl: "${NEXUS_URL}",
+                        groupId: 'tn.esprit',
+                        artifactId: 'eventsProject',
+                        version: '1.0.0-SNAPSHOT',
+                        repository: 'maven-snapshots',
+                        credentialsId: NEXUS_CREDENTIALS,
+                        artifacts: [[artifactId: 'eventsProject', file: 'target/eventsProject-1.0.0-SNAPSHOT.jar', type: 'jar']]
+                    )
                 }
             }
         }
+
         stage('Build and Push Docker Image') {
             when {
                 expression {
@@ -96,6 +95,7 @@ pipeline {
                 }
             }
         }
+
         stage('Archive Artifacts') {
             steps {
                 echo 'Archiving build artifacts...'
