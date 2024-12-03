@@ -78,7 +78,7 @@ stage('Upload to Nexus') {
     steps {
         withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'admin', passwordVariable: 'admin')]) {
             sh '''
-                curl -v -u $NEXUS_USER:$NEXUS_PASS \
+                curl -v -u admin:admin \
                     --upload-file target/eventsProject-1.0.0-SNAPSHOT.jar \
                     http://192.168.30.186:8088/repository/maven-releases/tn/esprit/eventsProject/1.0/eventsProject-1.0.0.jar
             '''
