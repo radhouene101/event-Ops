@@ -10,7 +10,7 @@ pipeline {
         DOCKER_REGISTRY = '' // For Docker Hub
         APP_NAME = 'devops-validation' // Your Docker Hub repository name
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
-        NEXUS_URL = 'http://192.168.30.186:8088'
+        NEXUS_URL = "http://192.168.30.186:8088"
         NEXUS_CREDENTIALS = 'nexus'
     }
 
