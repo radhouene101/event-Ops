@@ -10,7 +10,7 @@ pipeline {
         DOCKER_REGISTRY = '' // Docker Hub Registry
         APP_NAME = 'devops-validation' // Docker Image Name
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
-        NEXUS_VERSION = "NEXUS3"
+        NEXUS_VERSION = "nexus3"
         NEXUS_URL = "192.168.30.186:8088"
         NEXUS_CREDENTIALS = 'nexus'
     }
@@ -60,7 +60,7 @@ pipeline {
                     nexusArtifactUploader(
                         nexusVersion: NEXUS_VERSION,
                         protocol: 'http',
-                        nexusUrl: "${NEXUS_URL}",
+                        nexusUrl: "${NEXUS_URL}/repository/",
                         groupId: 'tn.esprit',
                         artifactId: 'eventsProject',
                         version: '1.0.0-SNAPSHOT',
