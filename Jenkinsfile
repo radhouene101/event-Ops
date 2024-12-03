@@ -58,34 +58,22 @@ pipeline {
                 sh 'mvn package'
             }
         }
-//         stage('Upload to Nexus') {
-//             steps {
-//                 script {
-//                     nexusArtifactUploader artifacts: [[artifactId: 'eventsProject',
-//                                                       classifier: '',
-//                                                       file: 'target/eventsProject-1.0.0-SNAPSHOT.jar',
-//                                                       type: 'jar']],
-//                                           credentialsId: "${NEXUS_CREDENTIALS}",
-//                                           groupId: 'tn.esprit', // Replace with your group ID
-//                                           nexusUrl:'http//192.168.30.186:8088',
-//                                           repository: 'maven-releases/', // Replace with your Nexus repository name
-//                                           version: '1.0',
-//                                           nexusVersion: 'nexus3'
-//                 }
-//             }
-//         }
-stage('Upload to Nexus') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'admin', passwordVariable: 'admin')]) {
-            sh '''
-                curl -v -u admin:admin \
-                    --upload-file target/eventsProject-1.0.0-SNAPSHOT.jar \
-                    http://192.168.30.186:8088/repository/maven-releases/tn/esprit/eventsProject/1.0/eventsProject-1.0.0.jar
-            '''
+        stage('Upload to Nexus') {
+            steps {
+                script {
+                    nexusArtifactUploader artifacts: [[artifactId: 'eventsProject',
+                                                      classifier: '',
+                                                      file: 'target/eventsProject-1.0.0-SNAPSHOT.jar',
+                                                      type: 'jar']],
+                                          credentialsId: "${NEXUS_CREDENTIALS}",
+                                          groupId: 'tn.esprit', // Replace with your group ID
+                                          nexusUrl:'http//192.168.30.186:8088',
+                                          repository: 'maven-releases/', // Replace with your Nexus repository name
+                                          version: '1.0',
+                                          nexusVersion: 'nexus3'
+                }
+            }
         }
-    }
-}
-
         stage('Build and Push Docker Image') {
             when {
                 expression {
