@@ -65,7 +65,8 @@ pipeline {
                                           groupId: 'tn.esprit', // Replace with your group ID
                                           nexusUrl: "${NEXUS_URL}",
                                           repository: 'test-repo', // Replace with your Nexus repository name
-                                          version: '1.0'
+                                          version: '1.0',
+                                          nexusVersion: 'nexus3'
                 }
             }
         }
