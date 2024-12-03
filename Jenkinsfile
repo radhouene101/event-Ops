@@ -10,7 +10,7 @@ pipeline {
         DOCKER_REGISTRY = '' // For Docker Hub
         APP_NAME = 'devops-validation' // Your Docker Hub repository name
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
-        NEXUS_VERSION = "nexus3"
+        NEXUS_VERSION = "NEXUS3"
         NEXUS_URL = "http://192.168.30.186:8088"
         NEXUS_CREDENTIALS = 'nexus'
     }
@@ -24,9 +24,8 @@ pipeline {
         }
         stage('Build') {
             steps {
-            echo "NEXUS_URL is: ${NEXUS_URL}"
-            echo "Full URL: ${NEXUS_URL}/repository/maven-releases/tn/esprit/eventsProject/1.0/eventsProject-1.0.jar"
-
+                echo "NEXUS_URL is: ${NEXUS_URL}"
+                echo "Full URL: ${NEXUS_URL}/repository/maven-releases/tn/esprit/eventsProject/1.0/eventsProject-1.0.jar"
                 echo 'Building the project with Maven...'
                 sh 'mvn clean package -DskipTests'
             }
@@ -65,12 +64,12 @@ pipeline {
                                                       classifier: '',
                                                       file: 'target/eventsProject-1.0.0-SNAPSHOT.jar',
                                                       type: 'jar']],
-                                          credentialsId: "nexus",
-                                          groupId: 'tn.esprit', // Replace with your group ID
-                                          nexusUrl:"http://192.168.30.186:8088",
-                                          repository: 'maven-releases', // Replace with your Nexus repository name
-                                          version: '1.0',
-                                          nexusVersion: 'nexus3'
+                                          credentialsId: NEXUS_CREDENTIALS,
+                                          groupId: 'tn.esprit',
+                                          nexusUrl: NEXUS_URL,
+                                          repository: 'maven-snapshots', // Replace with your Nexus repository name
+                                          version: '1.0.0-SNAPSHOT',
+                                          nexusVersion: NEXUS_VERSION
                 }
             }
         }
