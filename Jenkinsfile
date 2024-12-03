@@ -62,7 +62,7 @@ pipeline {
                                                       file: 'target/eventsProject-1.0.0-SNAPSHOT.jar',
                                                       type: 'jar']],
                                           credentialsId: "${NEXUS_CREDENTIALS}",
-                                          groupId: 'com.example', // Replace with your group ID
+                                          groupId: 'tn.esprit', // Replace with your group ID
                                           nexusUrl: "${NEXUS_URL}",
                                           repository: 'maven-releases', // Replace with your Nexus repository name
                                           version: '1.0'
