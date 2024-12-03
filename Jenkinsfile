@@ -60,7 +60,7 @@ pipeline {
                     nexusArtifactUploader(
                         nexusVersion: NEXUS_VERSION,
                         protocol: 'http',
-                        nexusUrl: "${NEXUS_URL}/repository/",
+                        nexusUrl: "${NEXUS_URL}",
                         groupId: 'tn.esprit',
                         artifactId: 'eventsProject',
                         version: '1.0.0-SNAPSHOT',
