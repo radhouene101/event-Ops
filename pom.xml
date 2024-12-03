@@ -13,11 +13,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>eventsProject</name>
     <description>eventsProject</description>
-    <scm>
-        <connection>scm:svn:http://somerepository.com/svn_repo/trunk</connection>
-        <developerConnection>scm:svn:https://somerepository.com/svn_repo/trunk</developerConnection>
-        <url>http://somerepository.com/view.cgi</url>
-    </scm>
+
     <properties>
         <java.version>1.8</java.version>
     </properties>
