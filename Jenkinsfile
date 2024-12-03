@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         maven 'M2_HOME' // Ensure these match the names in Jenkins Global Tool Configuration
-        jdk 'JAVA_HOME_8'
+        jdk 'JAVA_HOME'
     }
 
     environment {
