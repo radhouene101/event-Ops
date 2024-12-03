@@ -12,7 +12,7 @@ pipeline {
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
-        NEXUS_URL = "192.168.30.186:8088/"
+        NEXUS_URL = "192.168.30.186:8088"
         NEXUS_CREDENTIALS = 'nexus'
     }
 
@@ -66,7 +66,7 @@ pipeline {
                                           credentialsId: "${NEXUS_CREDENTIALS}",
                                           groupId: 'tn.esprit', // Replace with your group ID
                                           nexusUrl: "${NEXUS_URL}",
-                                          repository: 'maven-releases', // Replace with your Nexus repository name
+                                          repository: 'maven-releases/', // Replace with your Nexus repository name
                                           version: '1.0',
                                           nexusVersion: 'nexus3'
                 }
