@@ -11,7 +11,7 @@ pipeline {
         APP_NAME = 'devops-validation' // Docker Image Name
         DOCKER_IMAGE = "radhouene101/${APP_NAME}:${env.BUILD_NUMBER}"
         NEXUS_VERSION = "NEXUS3"
-        NEXUS_URL = "http://192.168.30.186:8088"
+        NEXUS_URL = "192.168.30.186:8088"
         NEXUS_CREDENTIALS = 'nexus'
     }
 
