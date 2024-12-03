@@ -25,6 +25,7 @@ pipeline {
         }
         stage('Build') {
             steps {
+            echo "NEXUS_URL is: ${NEXUS_URL}"
                 echo 'Building the project with Maven...'
                 sh 'mvn clean package -DskipTests'
             }
