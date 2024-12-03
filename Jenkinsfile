@@ -67,7 +67,7 @@ pipeline {
                                                       type: 'jar']],
                                           credentialsId: "${NEXUS_CREDENTIALS}",
                                           groupId: 'tn.esprit', // Replace with your group ID
-                                          nexusUrl: NEXUS_URL",
+                                          nexusUrl: NEXUS_URL,
                                           repository: 'maven-releases/', // Replace with your Nexus repository name
                                           version: '1.0',
                                           nexusVersion: 'nexus3'
