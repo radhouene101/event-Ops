@@ -59,7 +59,7 @@ pipeline {
                 script {
                     nexusArtifactUploader artifacts: [[artifactId: 'devops-validation',
                                                       classifier: '',
-                                                      file: 'target/devops-validation-1.0.jar', // Adjust the filename to your artifact
+                                                      file: 'target/eventsProject-1.0.0-SNAPSHOT.jar',
                                                       type: 'jar']],
                                           credentialsId: "${NEXUS_CREDENTIALS}",
                                           groupId: 'com.example', // Replace with your group ID
