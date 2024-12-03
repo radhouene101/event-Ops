@@ -24,7 +24,8 @@ public class Event implements Serializable {
     float cout;
     @ManyToMany(mappedBy = "events")
     private Set<Participant> participants;
-    @OneToMany(fetch = FetchType.EAGER)
+
+    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private Set<Logistics> logistics;
 
     public Event(int i, String sampleEvent) {
