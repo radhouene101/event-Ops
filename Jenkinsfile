@@ -68,7 +68,7 @@ pipeline {
                                           credentialsId: "${NEXUS_CREDENTIALS}",
                                           groupId: 'tn.esprit', // Replace with your group ID
                                           nexusUrl:"http://192.168.30.186:8088",
-                                          repository: 'maven-releases/', // Replace with your Nexus repository name
+                                          repository: 'maven-releases', // Replace with your Nexus repository name
                                           version: '1.0',
                                           nexusVersion: 'nexus3'
                 }
