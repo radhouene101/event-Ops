@@ -25,6 +25,8 @@ pipeline {
         stage('Build') {
             steps {
             echo "NEXUS_URL is: ${NEXUS_URL}"
+            echo "Full URL: ${NEXUS_URL}/repository/maven-releases/tn/esprit/eventsProject/1.0/eventsProject-1.0.jar"
+
                 echo 'Building the project with Maven...'
                 sh 'mvn clean package -DskipTests'
             }
