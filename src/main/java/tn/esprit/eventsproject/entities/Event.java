@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class Event implements Serializable {
+public class Event implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int idEvent;
