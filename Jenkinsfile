@@ -102,8 +102,8 @@ pipeline {
                 script {
                     echo "Deploying application using Docker Compose..."
                     sh """
-                    docker-compose down
-                    docker-compose pull ${DOCKER_IMAGE}
+                    docker-compose down --remove-orphans
+                    docker-compose pull
                     docker-compose up -d
                     """
                 }
