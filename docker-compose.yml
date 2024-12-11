@@ -59,6 +59,14 @@ services:
     networks:
       - events-network
 
+  # Jenkins is already running externally, so we'll include its existing host as part of the network
+  jenkins-external:
+    image: alpine
+    container_name: jenkins-external
+    networks:
+      - events-network
+    command: tail -f /dev/null
+
 volumes:
   mysql_data:
     driver: local
