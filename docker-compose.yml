@@ -17,13 +17,13 @@ services:
   nexus:
     image: sonatype/nexus3:latest
     container_name: nexus
-    ports:
-      - "8087:8081"
-    volumes:
-      - nexus-data:/nexus-data
     environment:
       INSTALL4J_ADD_VM_PARAMS: "-Xms1200m -Xmx1200m -XX:MaxDirectMemorySize=2g"
+    ports:
+      - "8088:8081"
     restart: always
+    volumes:
+      - nexus_data:/nexus-data
     networks:
       - events-network
 
@@ -31,7 +31,9 @@ services:
     image: sonarqube:community
     container_name: sonarqube
     ports:
-      - "9001:9000" #http://localhost:9001
+      - "9001:9000"
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
     depends_on:
       - nexus
     restart: always
@@ -42,41 +44,49 @@ services:
     networks:
       - events-network
 
-  events-app:
-    image: radhouene101/devops-validation:84
-    container_name: events-app
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
     ports:
-      - "8090:8089"
-    depends_on:
-      - mysql
-      - sonarqube
+      - "8081:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - events-network
+
+  events-app:
+    image: radhouene101/devops-validation:latest
+    container_name: events-app
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/eventsProject
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - mysql
+      - sonarqube
+    ports:
+      - "8090:8089"
     restart: always
     networks:
       - events-network
 
-  # Jenkins is already running externally, so we'll include its existing host as part of the network
-  jenkins-external:
-    image: alpine
-    container_name: jenkins-external
-    networks:
-      - events-network
-    command: tail -f /dev/null
-
 volumes:
   mysql_data:
     driver: local
-  nexus-data:
+  nexus_data:
     driver: local
   sonarqube_data:
     driver: local
   sonarqube_extensions:
     driver: local
   sonarqube_logs:
+    driver: local
+  jenkins_home:
     driver: local
 
 networks:
