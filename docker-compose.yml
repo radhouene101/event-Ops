@@ -59,7 +59,7 @@ services:
       - events-network
 
   events-app:
-    image: radhouene101/devops-validation:latest
+    image: radhouene101/devops-validation:93
     container_name: events-app
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/eventsProject
