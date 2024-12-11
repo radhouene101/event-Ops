@@ -80,9 +80,7 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([
-                        usernamePassword(credentialsId: 'docker-registry-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
-                    ]) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-registry-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         echo "Building Docker image: ${DOCKER_IMAGE}"
                         sh "docker build -t ${DOCKER_IMAGE} ."
                         echo "Logging into Docker Hub..."
@@ -92,6 +90,19 @@ pipeline {
                         echo "Logging out from Docker Hub..."
                         sh "docker logout"
                     }
+                }
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                script {
+                    echo "Deploying application: ${DOCKER_IMAGE}"
+                    sh '''
+                    docker stop ${APP_NAME} || true
+                    docker rm ${APP_NAME} || true
+                    docker run -d --name ${APP_NAME} -p 8080:8080 ${DOCKER_IMAGE}
+                    '''
                 }
             }
         }
@@ -106,7 +117,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline executed successfully!'
+            echo 'Pipeline executed successfully! The application is running at http://<server-ip>:8080'
         }
         failure {
             echo 'Pipeline failed!'
