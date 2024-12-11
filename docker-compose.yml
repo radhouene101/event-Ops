@@ -20,9 +20,9 @@ services:
     ports:
       - "8087:8081"
     volumes:
-      - nexus-data:/nexus-data # Persists Nexus data
+      - nexus-data:/nexus-data
     environment:
-      INSTALL4J_ADD_VM_PARAMS: "-Xms1200m -Xmx1200m -XX:MaxDirectMemorySize=2g" # JVM tuning
+      INSTALL4J_ADD_VM_PARAMS: "-Xms1200m -Xmx1200m -XX:MaxDirectMemorySize=2g"
     restart: always
     networks:
       - events-network
@@ -43,13 +43,13 @@ services:
       - events-network
 
   events-app:
-    image: radhouene101/devops-validation:84 # Your Docker image
+    image: radhouene101/devops-validation:84
     container_name: events-app
     ports:
-      - "8090:8089" # Exposes the application on port 8090
+      - "8090:8089"
     depends_on:
       - mysql
-      - sonarqube # Waits for SonarQube to start before starting the app
+      - sonarqube
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/eventsProject
       SPRING_DATASOURCE_USERNAME: root
