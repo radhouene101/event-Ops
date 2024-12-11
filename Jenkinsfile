@@ -13,6 +13,7 @@ pipeline {
         NEXUS_VERSION = "nexus3"
         NEXUS_URL = "192.168.30.186:8088"
         NEXUS_CREDENTIALS = 'nexus'
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml' // Path to your Docker Compose file
     }
 
     stages {
@@ -80,7 +81,9 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-registry-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    withCredentials([
+                        usernamePassword(credentialsId: 'docker-registry-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
+                    ]) {
                         echo "Building Docker image: ${DOCKER_IMAGE}"
                         sh "docker build -t ${DOCKER_IMAGE} ."
                         echo "Logging into Docker Hub..."
@@ -94,15 +97,15 @@ pipeline {
             }
         }
 
-        stage('Deploy Application') {
+        stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    echo "Deploying application: ${DOCKER_IMAGE}"
-                    sh '''
-                    docker stop ${APP_NAME} || true
-                    docker rm ${APP_NAME} || true
-                    docker run -d --name ${APP_NAME} -p 8080:8080 ${DOCKER_IMAGE}
-                    '''
+                    echo "Deploying application using Docker Compose..."
+                    sh """
+                    docker-compose down
+                    docker-compose pull ${DOCKER_IMAGE}
+                    docker-compose up -d
+                    """
                 }
             }
         }
@@ -117,7 +120,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline executed successfully! The application is running at http://<server-ip>:8080'
+            echo 'Pipeline executed successfully!'
         }
         failure {
             echo 'Pipeline failed!'
