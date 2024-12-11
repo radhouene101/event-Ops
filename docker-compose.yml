@@ -31,7 +31,7 @@ services:
     image: sonarqube:community
     container_name: sonarqube
     ports:
-      - "9001:9000" # SonarQube will be accessible at http://localhost:9001
+      - "9001:9000" #http://localhost:9001
     depends_on:
       - nexus
     restart: always
