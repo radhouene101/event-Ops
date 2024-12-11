@@ -7,14 +7,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: eventsProject
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - events-network
+
   nexus:
     image: sonatype/nexus3:latest
     container_name: nexus
@@ -25,12 +24,14 @@ services:
     environment:
       INSTALL4J_ADD_VM_PARAMS: "-Xms1200m -Xmx1200m -XX:MaxDirectMemorySize=2g" # JVM tuning
     restart: always
+    networks:
+      - events-network
 
   sonarqube:
     image: sonarqube:community
     container_name: sonarqube
     ports:
-      - "9001:9000" # SonarQube will be accessible at http://localhost:9000
+      - "9001:9000" # SonarQube will be accessible at http://localhost:9001
     depends_on:
       - nexus
     restart: always
@@ -38,23 +39,29 @@ services:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - events-network
 
   events-app:
-    image: radhouene101/devops-validation:latest # Your Docker image
+    image: radhouene101/devops-validation:84 # Your Docker image
     container_name: events-app
     ports:
-      - "8090:8089" # Exposes the application on port 8080
+      - "8090:8089" # Exposes the application on port 8090
     depends_on:
-      - nexus
+      - mysql
       - sonarqube # Waits for SonarQube to start before starting the app
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3307/eventsProject?createDatabaseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/eventsProject
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     restart: always
+    networks:
+      - events-network
 
 volumes:
+  mysql_data:
+    driver: local
   nexus-data:
     driver: local
   sonarqube_data:
@@ -63,3 +70,7 @@ volumes:
     driver: local
   sonarqube_logs:
     driver: local
+
+networks:
+  events-network:
+    driver: bridge
